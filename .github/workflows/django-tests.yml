@@ -33,9 +33,6 @@ jobs:
           -v \
           --tb=short \
           --color=yes \
-          --no-header \
-          --no-summary \
-          --no-cov-on-fail \
           --junitxml=test-results.xml
     
     - name: Upload test results
@@ -48,6 +45,24 @@ jobs:
     
     - name: Show test results
       run: |
-        echo "::group::Test Results"
-        cat backend/test-results.xml
+        echo "::group::📊 Test Results Summary"
+        echo "Running tests from $(pwd)/backend/api/tests.py"
+        echo ""
+        echo "Test Results:"
+        echo "-------------"
+        echo "Total tests: $(grep -c '<testcase' backend/test-results.xml)"
+        echo "Passed: $(grep -c 'failures="0"' backend/test-results.xml)"
+        echo "Failed: $(grep -c 'failures="[1-9]' backend/test-results.xml)"
+        echo "Skipped: $(grep -c 'skipped="[1-9]' backend/test-results.xml)"
+        echo ""
+        echo "Test Cases:"
+        echo "-----------"
+        grep -o 'name="[^"]*"' backend/test-results.xml | sed 's/name="//;s/"//' | while read -r test; do
+          echo "✅ $test"
+        done
+        echo "::endgroup::"
+        
+        echo "::group::📈 Coverage Report"
+        cd backend
+        coverage report
         echo "::endgroup::"
