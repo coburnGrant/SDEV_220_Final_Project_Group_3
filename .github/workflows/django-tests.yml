@@ -46,7 +46,6 @@ jobs:
     - name: Show test results
       run: |
         echo "::group::📊 Test Results Summary"
-        echo "Running tests from $(pwd)/backend/api/tests.py"
         echo ""
         echo "Test Results:"
         echo "-------------"
