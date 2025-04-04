@@ -33,9 +33,3 @@ jobs:
         name: coverage-report
         path: backend/htmlcov/
         retention-days: 7
-        
-    - name: Clean up old artifacts
-      uses: kolpav/purge-artifacts-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        expire-in: 7days 
