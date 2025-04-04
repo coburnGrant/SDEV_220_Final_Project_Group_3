@@ -22,7 +22,7 @@ jobs:
         cd backend
         pip install -r requirements.txt
     
-    - name: Run tests with coverage and annotations
+    - name: Run tests with coverage
       run: |
         cd backend
         pytest api/tests.py \
@@ -30,8 +30,13 @@ jobs:
           --cov-report=term-missing \
           --cov-report=html \
           --cov-report=xml \
-          --junitxml=test-results.xml \
-          -v
+          -v \
+          --tb=short \
+          --color=yes \
+          --no-header \
+          --no-summary \
+          --no-cov-on-fail \
+          --junitxml=test-results.xml
     
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -41,9 +46,8 @@ jobs:
           backend/test-results.xml
           backend/htmlcov/
     
-    - name: Publish Test Results
-      uses: mikepenz/action-junit-report@v3
-      with:
-        report_paths: 'backend/test-results.xml'
-        check_name: 'Django Tests'
-        fail_on_failure: true
+    - name: Show test results
+      run: |
+        echo "::group::Test Results"
+        cat backend/test-results.xml
+        echo "::endgroup::"
