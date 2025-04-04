@@ -22,14 +22,28 @@ jobs:
         cd backend
         pip install -r requirements.txt
     
-    - name: Run tests with coverage
+    - name: Run tests with coverage and annotations
       run: |
         cd backend
-        pytest api/tests.py --cov=api --cov-report=term-missing --cov-report=html --cov-report=xml -v
+        pytest api/tests.py \
+          --cov=api \
+          --cov-report=term-missing \
+          --cov-report=html \
+          --cov-report=xml \
+          --junitxml=test-results.xml \
+          -v
     
-    - name: Upload coverage report
+    - name: Upload test results
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-report
-        path: backend/htmlcov/
-        retention-days: 7
+        name: test-results
+        path: |
+          backend/test-results.xml
+          backend/htmlcov/
+    
+    - name: Publish Test Results
+      uses: mikepenz/action-junit-report@v3
+      with:
+        report_paths: 'backend/test-results.xml'
+        check_name: 'Django Tests'
+        fail_on_failure: true
