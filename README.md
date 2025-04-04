@@ -23,7 +23,7 @@ source env/bin/activate
 
 2. Install Python dependencies:
 ```bash
-pip install django djangorestframework djangorestframework-simplejwt django-cors-headers python-dotenv
+pip install -r requirements.txt
 ```
 
 3. Run database migrations:
