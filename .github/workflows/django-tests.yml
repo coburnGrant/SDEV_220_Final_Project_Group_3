@@ -1,0 +1,67 @@
+name: Django Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      run: |
+        python --version
+        python -m pip install --upgrade pip
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Run tests with coverage
+      run: |
+        cd backend
+        pytest api/tests.py \
+          --cov=api \
+          --cov-report=term-missing \
+          --cov-report=html \
+          --cov-report=xml \
+          -v \
+          --tb=short \
+          --color=yes \
+          --junitxml=test-results.xml
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: |
+          backend/test-results.xml
+          backend/htmlcov/
+    
+    - name: Show test results
+      run: |
+        echo "::group::📊 Test Results Summary"
+        echo ""
+        echo "Test Results:"
+        echo "-------------"
+        echo "Total tests: $(grep -c '<testcase' backend/test-results.xml)"
+        echo "Passed: $(grep -c 'failures="0"' backend/test-results.xml)"
+        echo "Failed: $(grep -c 'failures="[1-9]' backend/test-results.xml)"
+        echo "Skipped: $(grep -c 'skipped="[1-9]' backend/test-results.xml)"
+        echo ""
+        echo "Test Cases:"
+        echo "-----------"
+        grep -o 'name="[^"]*"' backend/test-results.xml | sed 's/name="//;s/"//' | while read -r test; do
+          echo "✅ $test"
+        done
+        echo "::endgroup::"
+        
+        echo "::group::📈 Coverage Report"
+        cd backend
+        coverage report
+        echo "::endgroup::"
