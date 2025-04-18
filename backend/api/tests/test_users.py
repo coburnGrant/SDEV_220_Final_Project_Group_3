@@ -23,7 +23,7 @@ class UserTests(TestCase):
             'username': 'newuser',
             'password': 'newpass123'
         }
-        response = self.client.post('/api/user/register/', data)
+        response = self.client.post('/api/users/register/', data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(User.objects.filter(username='newuser').exists())
 
@@ -51,7 +51,7 @@ class UserTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         
         # Get current user
-        response = self.client.get('/api/user/me/')
+        response = self.client.get('/api/users/me/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['username'], 'testuser')
 
@@ -68,7 +68,7 @@ class UserTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         
         # Get user list
-        response = self.client.get('/api/admin/users/')
+        response = self.client.get('/api/users/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)  # admin and regular user
 
@@ -85,6 +85,6 @@ class UserTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         
         # Delete regular user
-        response = self.client.delete(f'/api/admin/users/{self.regular_user.id}/')
+        response = self.client.delete(f'/api/users/{self.regular_user.id}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(User.objects.filter(username='testuser').exists())
+        self.assertFalse(User.objects.filter(username='testuser').exists()) 

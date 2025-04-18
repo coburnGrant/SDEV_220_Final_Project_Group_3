@@ -1,20 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './styles/App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
-import { Navigate } from "react-router-dom";
 
-function Logout() {
-  localStorage.clear()
-  return <Navigate to="/login" />
-}
+import './styles/App.css'
 
 function RegisterAndLogout() {
   localStorage.clear()

@@ -25,7 +25,7 @@ jobs:
     - name: Run tests with coverage
       run: |
         cd backend
-        pytest api/tests.py \
+        pytest api/tests \
           --cov=api \
           --cov-report=term-missing \
           --cov-report=html \
@@ -50,13 +50,13 @@ jobs:
         echo "Test Results:"
         echo "-------------"
         echo "Total tests: $(grep -c '<testcase' backend/test-results.xml)"
-        echo "Passed: $(grep -c 'failures="0"' backend/test-results.xml)"
-        echo "Failed: $(grep -c 'failures="[1-9]' backend/test-results.xml)"
-        echo "Skipped: $(grep -c 'skipped="[1-9]' backend/test-results.xml)"
+        echo "Passed: $(grep -c 'failures="0"' backend-test-results.xml)"
+        echo "Failed: $(grep -c 'failures="[1-9]' backend-test-results.xml)"
+        echo "Skipped: $(grep -c 'skipped="[1-9]' backend-test-results.xml)"
         echo ""
         echo "Test Cases:"
         echo "-----------"
-        grep -o 'name="[^"]*"' backend/test-results.xml | sed 's/name="//;s/"//' | while read -r test; do
+        grep -o 'name="[^"]*"' backend-test-results.xml | sed 's/name="//;s/"//' | while read -r test; do
           echo "✅ $test"
         done
         echo "::endgroup::"
