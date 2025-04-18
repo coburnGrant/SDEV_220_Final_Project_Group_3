@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Shipment
+from ..models import Shipment, ShipmentItem
 from .shipment_item_serializer import ShipmentItemSerializer
 from .user_serializer import UserSerializer
 

@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
-from ..models import InventoryItem, Shipment, ShipmentItem, Product
+from ..models import Shipment, ShipmentItem, Product
 from django.utils import timezone
 from datetime import timedelta
 from ..models.enums import ShipmentType, ShipmentStatus
