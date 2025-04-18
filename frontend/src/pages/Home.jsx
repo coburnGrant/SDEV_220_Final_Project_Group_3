@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
+import { Link } from "react-router-dom";
 
 function Home() {
     const [user, setUser] = useState(null);
@@ -43,6 +44,8 @@ function Home() {
         <div>
             <h1>Home</h1>
             {user && <h2>Hello, {user.username}!</h2>}
+            
+            <Link to="/logout">Logout</Link>
         </div>
     );
 }
