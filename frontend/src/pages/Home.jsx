@@ -29,7 +29,7 @@ function Home() {
                 const token = localStorage.getItem(ACCESS_TOKEN);
                 console.log("Current token:", token);
 
-                const response = await api.get("/api/user/me/");
+                const response = await api.get("/api/users/me/");
                 console.log("Response:", response.data);
                 setUser(response.data);
                 // Store user for Navbar to read
@@ -61,9 +61,6 @@ function Home() {
             setToast({ message: "", color: "" });
         }, 2000); //  2 seconds
     };
-
-
-
 
     if (loading) {
         return (

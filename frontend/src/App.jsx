@@ -9,7 +9,7 @@ import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import AdminUsers from "./pages/AdminUsers.jsx";
 
-import './styles/App.css'
+import './styles/index.css'
 
 function RegisterAndLogout() {
   localStorage.clear()
