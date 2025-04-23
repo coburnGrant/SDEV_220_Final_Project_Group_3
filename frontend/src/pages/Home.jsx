@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Pencil, Trash } from "lucide-react";
-import api from "../api";
+import api from "../services/api";
 import { ACCESS_TOKEN } from "../constants";
 import Navbar from "../components/Navbar.jsx";
 import { useNavigate } from "react-router-dom";

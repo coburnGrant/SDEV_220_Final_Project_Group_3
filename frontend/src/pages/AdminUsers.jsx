@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import api from "../api";
+import api from "../services/api";
 import { Trash2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
