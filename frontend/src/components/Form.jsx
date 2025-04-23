@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN, FORM_METHOD_LOGIN, FORM_METHOD_REGISTER } from "../constants";
+import { validateRegisterForm, validateLoginForm } from "../utils/FormValidator";
 
 function Form({ route, method }) {
   const [username, setUsername] = useState("");
@@ -10,65 +11,68 @@ function Form({ route, method }) {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    setLoading(true);
-    e.preventDefault();
+  const isRegister = method === FORM_METHOD_REGISTER;
+  const isLogin = method === FORM_METHOD_LOGIN;
 
-    if (
-      method === FORM_METHOD_REGISTER &&
-      (!username || !password || !firstName || !lastName || !email)
-    ) {
-      alert("Please fill in all the fields.");
-      setLoading(false);
-      return;
+  // Validates the form
+  const validateForm = () => {
+    if (isRegister) {
+      validateRegisterForm(username, password, firstName, lastName, email);
+    } else if (isLogin) {
+      validateLoginForm(username, password);
+    } else {
+      throw new Error("Invalid form method");
     }
+  }
+
+  // Handles the form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      console.log("Submitting:", { username, password });
+      validateForm();
 
-      let payload = { username, password };
-
-      if (method === "register") {
-        payload = {
-          ...payload,
-          first_name: firstName,
-          last_name: lastName,
-          email,
-        };
-      }
+      const payload = isRegister
+        ? { username, password, first_name: firstName, last_name: lastName, email }
+        : { username, password };
 
       const response = await api.post(route, payload);
 
-      if (method == FORM_METHOD_LOGIN) {
-          localStorage.setItem(ACCESS_TOKEN, response.data.access);
-          localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
-          navigate("/");
-      } else if (method == FORM_METHOD_REGISTER) {
-          navigate("/login")
+      if (isLogin) {
+        localStorage.setItem(ACCESS_TOKEN, response.data.access);
+        localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+        navigate("/");
       } else {
-          throw new Error("Invalid form method");
+        navigate("/login");
       }
-    } catch (error) {
-      alert(error);
+    } catch (err) {
+      console.log(err);
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const formTitle = method === "login" ? "Login" : "Register";
+  const formTitle = isLogin ? "Login" : "Register";
   const buttonText = loading ? "Loading..." : formTitle;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-xl px-10 py-8 w-full max-w-sm space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl px-10 py-8 w-full max-w-sm space-y-6">
         <h1 className="text-2xl font-bold text-center text-blue-900">
           {formTitle}
         </h1>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
 
         <input
           type="text"
@@ -86,7 +90,7 @@ function Form({ route, method }) {
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-black"
         />
 
-        {method === "register" && (
+        {isRegister && (
           <>
             <input
               type="text"
@@ -120,7 +124,7 @@ function Form({ route, method }) {
           {buttonText}
         </button>
 
-        {method === "login" ? (
+        {isLogin ? (
           <p className="text-center text-sm text-gray-600">
             Don't have an account?{" "}
             <span

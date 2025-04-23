@@ -80,7 +80,7 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-gray-100 text-gray-800">
-            <Navbar username={user?.username} />
+            <Navbar username={user?.username} firstName={user?.first_name} lastName={user?.last_name} />
 
             <main className="max-w-6xl mx-auto px-6 py-10">
                 {/* Top bar */}
@@ -89,12 +89,14 @@ function Home() {
                         Welcome, <span className="text-blue-900">{user.username}</span>
                     </h1>
 
-                    <button
-                        onClick={() => navigate("/admin/users")}
-                        className="text-sm bg-blue-100 text-blue-900 px-4 py-2 rounded hover:bg-blue-200"
-                    >
-                        Admin Area
-                    </button>
+                    {user.is_staff && (
+                        <button
+                            onClick={() => navigate("/admin/users")}
+                            className="text-sm bg-blue-100 text-blue-900 px-4 py-2 rounded hover:bg-blue-200"
+                        >
+                            Admin Panel
+                        </button>
+                    )}
                 </div>
 
                 {/* Add Product Button */}

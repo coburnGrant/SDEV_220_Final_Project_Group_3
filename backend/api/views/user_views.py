@@ -1,14 +1,8 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from ..serializers.user_serializer import UserSerializer
-
-def home(request):
-    return JsonResponse({"message": "Welcome to the Warehouse Management API"})
-
 class CreateUserView(generics.CreateAPIView):
     """
     API endpoint for creating new users.
