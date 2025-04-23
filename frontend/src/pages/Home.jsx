@@ -29,12 +29,11 @@ function Home() {
                 const token = localStorage.getItem(ACCESS_TOKEN);
                 console.log("Current token:", token);
 
-                const response = await api.get("/api/user/me/");
+                const response = await api.get("/api/users/me/");
                 console.log("Response:", response.data);
                 setUser(response.data);
-// Store user for Navbar to read
+                // Store user for Navbar to read
                 localStorage.setItem("user", JSON.stringify(response.data));
-
             } catch (error) {
                 console.error("Error details:", {
                     message: error.message,
@@ -63,9 +62,6 @@ function Home() {
         }, 2000); //  2 seconds
     };
 
-
-
-
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -84,7 +80,7 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-gray-100 text-gray-800">
-            <Navbar username={user?.username} />
+            <Navbar username={user?.username} firstName={user?.first_name} lastName={user?.last_name} />
 
             <main className="max-w-6xl mx-auto px-6 py-10">
                 {/* Top bar */}
@@ -93,12 +89,14 @@ function Home() {
                         Welcome, <span className="text-blue-900">{user.username}</span>
                     </h1>
 
-                    <button
-                        onClick={() => navigate("/admin/users")}
-                        className="text-sm bg-blue-100 text-blue-900 px-4 py-2 rounded hover:bg-blue-200"
-                    >
-                        Admin Area
-                    </button>
+                    {user.is_staff && (
+                        <button
+                            onClick={() => navigate("/admin/users")}
+                            className="text-sm bg-blue-100 text-blue-900 px-4 py-2 rounded hover:bg-blue-200"
+                        >
+                            Admin Panel
+                        </button>
+                    )}
                 </div>
 
                 {/* Add Product Button */}

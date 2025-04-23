@@ -3,22 +3,19 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Logout from "./pages/Logout";
 import NotFound from "./pages/NotFound";
 import { Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import AdminUsers from "./pages/AdminUsers.jsx";
 
-function Logout() {
-  localStorage.clear()
-  return <Navigate to="/login" />
-}
+import './styles/index.css'
 
 function RegisterAndLogout() {
   localStorage.clear()
   return <Register />
 }
 
-// ✅ Inner component so we can use useLocation()
 function AppRoutes() {
     const location = useLocation();
     const isAuth = !!localStorage.getItem("access_token");

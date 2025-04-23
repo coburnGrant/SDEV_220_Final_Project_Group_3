@@ -108,15 +108,10 @@ npm update
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/user/register/` - Register a new user
-- `POST /api/token/` - Get JWT tokens
-- `POST /api/token/refresh/` - Refresh JWT token
-
-### User Management
-- `GET /api/user/me/` - Get current user info
-- `GET /api/admin/users/` - List all users (admin only)
-- `DELETE /api/admin/users/<id>/` - Delete a user (admin only)
+### Swagger
+- Full API documentation and endpoints are automatically generated with each build 
+    - Can be found at `/redocs` to get full documentation with examples
+    - Can be found at `/swagger` to use swagger to explore and test API endpoints
 
 ## Development Notes
 

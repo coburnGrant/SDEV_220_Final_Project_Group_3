@@ -13,7 +13,9 @@ const AdminUsers = () => {
   const currentUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    if (!currentUser || currentUser.username !== "admin") {
+    const isAdmin = currentUser?.is_staff;
+
+    if (!isAdmin) {
       if (!alertShown.current) {
         alert("Access denied: You don't have admin rights to view this page.");
         alertShown.current = true; // Prevent future alerts
@@ -24,26 +26,29 @@ const AdminUsers = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await api.get("/api/admin/users/");
+        const response = await api.get("/api/users/");
+        console.log("Users fetched:", response.data);
         setUsers(response.data);
-      } catch (error) {
-        console.log("Error loading users:", error);
-        setError("Unauthorized or server error.");
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch users');
       } finally {
         setLoading(false);
       }
     };
 
-    void fetchUsers();
-  }, [currentUser, navigate]);
+    fetchUsers();
+  }, []); // Empty dependency array means it only runs once on mount
 
   const handleDelete = async (userId) => {
-    try {
-      await api.delete(`/api/admin/users/${userId}/`);
-      setUsers((prev) => prev.filter((user) => user.id !== userId));
-    } catch (error) {
-      console.error("Delete failed:", error);
-    }
+    console.log("Deleting user:", userId);
+
+    console.log("Deleting of users not set up yet!");
+    // try {
+    //   await api.delete(`/api/admin/users/${userId}/`);
+    //   setUsers((prev) => prev.filter((user) => user.id !== userId));
+    // } catch (error) {
+    //   console.error("Delete failed:", error);
+    // }
   };
 
   if (loading) return <div className="p-4">Loading users...</div>;
