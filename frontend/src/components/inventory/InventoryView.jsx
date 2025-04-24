@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 import InventoryList from "./InventoryList";
 import AddInventoryItemButton from "./AddInventoryItemButton";
@@ -6,19 +6,47 @@ import InventoryItemForm from "./InventoryItemForm";
 
 function InventoryView() {
     const [inventoryItems, setInventoryItems] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
     const [newItem, setNewItem] = useState({
         name: "",
         sku: "",
-        category: "Electronics",
+        category: "",
         quantity: 0,
         description: "",
         location: "",
         minimum_stock: 0
     });
     const [toast, setToast] = useState({ message: "", color: "" });
+
+    // Fetch categories when component mounts
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get('/api/inventory/categories/');
+            console.log('Categories:', response.data);
+            setCategories(response.data);
+            // Set default category if available
+            if (response.data.length > 0) {
+                setNewItem(prev => ({ ...prev, category: response.data[0] }));
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            showToast('Failed to load categories', 'red');
+        }
+    };
+
+    // Fetch inventory items when component mounts
+    const fetchInventoryItems = async () => {
+        try {
+            const response = await api.get('/api/inventory/');
+            setInventoryItems(response.data);
+        } catch (error) {
+            console.error('Error fetching inventory items:', error);
+            showToast('Failed to load inventory items', 'red');
+        }
+    };
 
     const handleDelete = (id) => {
         const confirmed = window.confirm("Are you sure you want to delete this inventory item?");
@@ -52,7 +80,7 @@ function InventoryView() {
             setNewItem({
                 name: "",
                 sku: "",
-                category: "Electronics",
+                category: categories[0] || "",
                 quantity: 0,
                 description: "",
                 location: "",
@@ -71,6 +99,11 @@ function InventoryView() {
             setToast({ message: "", color: "" });
         }, 2000);
     };
+
+    useEffect(() => {
+        fetchCategories();
+        fetchInventoryItems();
+    }, []);
 
     return (
         <div>
@@ -98,7 +131,7 @@ function InventoryView() {
                     setNewItem({
                         name: "",
                         sku: "",
-                        category: "Electronics",
+                        category: categories[0] || "",
                         quantity: 0,
                         description: "",
                         location: "",
@@ -109,9 +142,10 @@ function InventoryView() {
                 item={newItem}
                 setItem={setNewItem}
                 isEditing={isEditing}
+                categories={categories}
             />
         </div>
     );
-};
+}
 
 export default InventoryView; 

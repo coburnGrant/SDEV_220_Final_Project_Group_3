@@ -19,4 +19,21 @@ class InventoryItem(models.Model):
         return f"{self.name} ({self.sku})"
 
     class Meta:
-        ordering = ['name'] 
+        ordering = ['name']
+
+class InventoryCategory:
+    """Suggested categories for inventory items."""
+    SUGGESTED_CATEGORIES = [
+        'Electronics',
+        'Clothing',
+        'Food',
+        'Furniture',
+        'Office Supplies',
+        'Tools',
+        'Chemicals',
+        'Other'
+    ]
+
+    @classmethod
+    def get_suggested_categories(cls):
+        return cls.SUGGESTED_CATEGORIES 

@@ -1,9 +1,9 @@
-import { Pencil, Trash } from "lucide-react";
+import InventoryItemRow from "./InventoryItemRow";
 
-function InventoryList({ items, onEdit, onDelete }) {
+const InventoryList = ({ items, onEdit, onDelete }) => {
     return (
         <div className="bg-white rounded shadow p-4">
-            <h2 className="text-xl font-semibold mb-4">Inventory</h2>
+            <h2 className="text-xl font-semibold mb-4">Inventory List</h2>
 
             {items.length === 0 ? (
                 <p className="text-gray-600">No inventory items available.</p>
@@ -19,30 +19,12 @@ function InventoryList({ items, onEdit, onDelete }) {
                     </thead>
                     <tbody>
                         {items.map((item) => (
-                            <tr key={item.id} className="border-b hover:bg-gray-50">
-                                <td className="py-2">{item.name}</td>
-                                <td className="py-2">{item.category}</td>
-                                <td className="py-2">{item.quantity}</td>
-                                <td className="py-2 text-right">
-                                    <div className="flex justify-end gap-4 items-center">
-                                        <button
-                                            onClick={() => onEdit(item)}
-                                            className="text-blue-600 hover:text-blue-800 cursor-pointer"
-                                            title="Edit"
-                                        >
-                                            <Pencil size={20} />
-                                        </button>
-
-                                        <button
-                                            onClick={() => onDelete(item.id)}
-                                            className="text-red-600 hover:text-red-800 cursor-pointer"
-                                            title="Delete"
-                                        >
-                                            <Trash size={20} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <InventoryItemRow
+                                key={item.id}
+                                item={item}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                            />
                         ))}
                     </tbody>
                 </table>
