@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../../services/api";
+import { inventoryService } from "../../services/inventoryService";
 import InventoryList from "./InventoryList";
 import AddInventoryItemButton from "./AddInventoryItemButton";
 import InventoryItemForm from "./InventoryItemForm";
@@ -24,12 +24,12 @@ function InventoryView() {
     // Fetch categories when component mounts
     const fetchCategories = async () => {
         try {
-            const response = await api.get('/api/inventory/categories/');
-            console.log('Categories:', response.data);
-            setCategories(response.data);
+            const categories = await inventoryService.getCategories();
+            console.log('Categories:', categories);
+            setCategories(categories);
             // Set default category if available
-            if (response.data.length > 0) {
-                setNewItem(prev => ({ ...prev, category: response.data[0] }));
+            if (categories.length > 0) {
+                setNewItem(prev => ({ ...prev, category: categories[0] }));
             }
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -40,20 +40,26 @@ function InventoryView() {
     // Fetch inventory items when component mounts
     const fetchInventoryItems = async () => {
         try {
-            const response = await api.get('/api/inventory/');
-            setInventoryItems(response.data);
+            const items = await inventoryService.getAll();
+            setInventoryItems(items);
         } catch (error) {
             console.error('Error fetching inventory items:', error);
             showToast('Failed to load inventory items', 'red');
         }
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         const confirmed = window.confirm("Are you sure you want to delete this inventory item?");
         if (!confirmed) return;
 
-        setInventoryItems((prev) => prev.filter((item) => item.id !== id));
-        showToast("Inventory item deleted!", "red");
+        try {
+            await inventoryService.delete(id);
+            setInventoryItems((prev) => prev.filter((item) => item.id !== id));
+            showToast("Inventory item deleted!", "red");
+        } catch (error) {
+            console.error('Error deleting inventory item:', error);
+            showToast('Failed to delete inventory item', 'red');
+        }
     };
 
     const handleEdit = (item) => {
@@ -74,8 +80,17 @@ function InventoryView() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/api/inventory/', newItem);
-            setInventoryItems(prev => [...prev, response.data]);
+            let response;
+            if (isEditing) {
+                response = await inventoryService.update(editId, newItem);
+                setInventoryItems(prev => prev.map(item => 
+                    item.id === editId ? response : item
+                ));
+            } else {
+                response = await inventoryService.create(newItem);
+                setInventoryItems(prev => [...prev, response]);
+            }
+            
             setIsModalOpen(false);
             setNewItem({
                 name: "",
@@ -86,10 +101,10 @@ function InventoryView() {
                 location: "",
                 minimum_stock: 0
             });
-            showToast("Inventory item added successfully!", "green");
+            showToast(`Inventory item ${isEditing ? 'updated' : 'added'} successfully!`, "green");
         } catch (error) {
-            console.error('Error adding inventory item:', error);
-            showToast(error.response?.data?.message || "Failed to add inventory item", "red");
+            console.error(`Error ${isEditing ? 'updating' : 'adding'} inventory item:`, error);
+            showToast(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'add'} inventory item`, "red");
         }
     };
 
