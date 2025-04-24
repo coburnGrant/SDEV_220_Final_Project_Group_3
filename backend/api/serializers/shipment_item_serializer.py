@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import ShipmentItem, Product
+from ..models import ShipmentItem, InventoryItem
 
 class ShipmentItemSerializer(serializers.ModelSerializer):
     """
@@ -7,12 +7,12 @@ class ShipmentItemSerializer(serializers.ModelSerializer):
     
     Handles:
     - Creating and updating shipment items
-    - Nested product relationship
+    - Nested inventory item relationship
     - Quantity and unit price validation
     """
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    item = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all())
     
     class Meta:
         model = ShipmentItem
-        fields = ['id', 'product', 'quantity', 'unit_price']
+        fields = ['id', 'item', 'quantity', 'unit_price']
         read_only_fields = ['id'] 
