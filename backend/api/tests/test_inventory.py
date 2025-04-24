@@ -109,3 +109,23 @@ class InventoryTests(TestCase):
         response = self.client.get('/api/inventory/low_stock/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)  # Only item2 has quantity < minimum_stock 
+
+    def test_get_categories(self):
+        """Test that the categories endpoint returns all unique categories."""
+        response = self.client.get('/api/inventory/categories/')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        
+        # Should include both existing categories and suggested categories
+        categories = response.data
+        self.assertIn('Electronics', categories)
+        self.assertIn('Tools', categories)
+        self.assertIn('Clothing', categories)  # Suggested category
+        self.assertIn('Food', categories)      # Suggested category
+        
+        # Categories should be unique
+        self.assertEqual(len(categories), len(set(categories)))
+        
+        # Categories should be sorted
+        self.assertEqual(categories, sorted(categories)) 
