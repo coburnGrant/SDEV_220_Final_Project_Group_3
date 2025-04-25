@@ -3,10 +3,10 @@ import { Pencil, Trash } from "lucide-react";
 function InventoryItemRow({ item, onEdit, onDelete }) {
     return (
         <tr className="border-b hover:bg-gray-50">
-            <td className="py-2">{item.name}</td>
-            <td className="py-2">{item.category}</td>
-            <td className="py-2">{item.quantity}</td>
-            <td className="py-2 text-right">
+            <td className="py-3 px-4">{item.name}</td>
+            <td className="py-3 px-4">{item.category}</td>
+            <td className="py-3 px-4">{item.quantity}</td>
+            <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-4 items-center">
                     <button
                         onClick={() => onEdit(item)}

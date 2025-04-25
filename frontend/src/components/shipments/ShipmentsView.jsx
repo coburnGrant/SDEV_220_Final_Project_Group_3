@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { shipmentService } from "../../services/shipmentService";
 import ShipmentForm from "./ShipmentForm";
-import ShipmentRow from "./ShipmentRow";
+import ShipmentList from "./ShipmentList";
 import ShipmentDetails from "./ShipmentDetails";
 
 const ShipmentsView = () => {
     const [shipments, setShipments] = useState([]);
     const [showNewShipmentForm, setShowNewShipmentForm] = useState(false);
     const [selectedShipment, setSelectedShipment] = useState(null);
+    const [toast, setToast] = useState({ message: "", color: "" });
     const [newShipment, setNewShipment] = useState({
         type: 'IN',
         status: 'PENDING',
@@ -28,7 +29,15 @@ const ShipmentsView = () => {
             setShipments(data);
         } catch (error) {
             console.error('Error fetching shipments:', error);
+            showToast('Failed to load shipments', 'red');
         }
+    };
+
+    const showToast = (message, color = "green") => {
+        setToast({ message, color });
+        setTimeout(() => {
+            setToast({ message: "", color: "" });
+        }, 2000);
     };
 
     const handleNewShipment = () => {
@@ -46,7 +55,6 @@ const ShipmentsView = () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Transform the data to match the API expectations
             const transformedShipment = {
                 ...newShipment,
                 shipment_items: newShipment.shipment_items.map(item => ({
@@ -56,15 +64,13 @@ const ShipmentsView = () => {
                 }))
             };
 
-            console.log("Creating shipment with transformed data:", transformedShipment);
-
             await shipmentService.create(transformedShipment);
-
             setShowNewShipmentForm(false);
-
             fetchShipments();
+            showToast('Shipment created successfully!', 'green');
         } catch (error) {
             console.error('Error creating shipment:', error);
+            showToast(error.response?.data?.message || 'Failed to create shipment', 'red');
         }
     };
 
@@ -81,19 +87,22 @@ const ShipmentsView = () => {
             try {
                 await shipmentService.delete(id);
                 fetchShipments();
+                showToast('Shipment deleted successfully!', 'red');
             } catch (error) {
                 console.error('Error deleting shipment:', error);
+                showToast('Failed to delete shipment', 'red');
             }
         }
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div>
+            <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Shipments</h2>
+
                 <button
                     onClick={handleNewShipment}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    className="flex items-center gap-2 bg-blue-900 text-white px-6 py-2 rounded hover:bg-blue-800"
                 >
                     <Plus size={20} />
                     New Shipment
@@ -111,32 +120,12 @@ const ShipmentsView = () => {
                 />
             )}
 
-            <div className="bg-white rounded-lg shadow">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b bg-gray-50">
-                                <th className="py-3 px-4 text-left">Type</th>
-                                <th className="py-3 px-4 text-left">Tracking Number</th>
-                                <th className="py-3 px-4 text-left">Status</th>
-                                <th className="py-3 px-4 text-left">Carrier</th>
-                                <th className="py-3 px-4 text-left">Estimated Arrival</th>
-                                <th className="py-3 px-4 text-left">Items</th>
-                                <th className="py-3 px-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {shipments.map((shipment) => (
-                                <ShipmentRow
-                                    key={shipment.id}
-                                    shipment={shipment}
-                                    onViewDetails={handleViewDetails}
-                                    onDelete={handleDelete}
-                                />
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <ShipmentList 
+                    shipments={shipments}
+                    onViewDetails={handleViewDetails}
+                    onDelete={handleDelete}
+                />
             </div>
 
             {selectedShipment && (
@@ -144,6 +133,16 @@ const ShipmentsView = () => {
                     shipment={selectedShipment}
                     onClose={handleCloseDetails}
                 />
+            )}
+
+            {toast.message && (
+                <div
+                    className={`fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 font-semibold text-lg ${
+                        toast.color === "red" ? "text-red-600" : "text-green-600"
+                    }`}
+                >
+                    {toast.message}
+                </div>
             )}
         </div>
     );

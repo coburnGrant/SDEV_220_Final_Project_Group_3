@@ -121,12 +121,18 @@ function InventoryView() {
 
     return (
         <div>
-            <AddInventoryItemButton onClick={() => setIsModalOpen(true)} />
-            <InventoryList 
-                items={inventoryItems} 
-                onEdit={handleEdit} 
-                onDelete={handleDelete} 
-            />
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">Inventory</h2>
+                <AddInventoryItemButton onClick={() => setIsModalOpen(true)} />
+            </div>
+
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <InventoryList 
+                    items={inventoryItems} 
+                    onEdit={handleEdit} 
+                    onDelete={handleDelete} 
+                />
+            </div>
 
             {toast.message && (
                 <div
