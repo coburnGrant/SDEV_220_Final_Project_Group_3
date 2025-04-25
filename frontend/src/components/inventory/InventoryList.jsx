@@ -5,7 +5,7 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
     return (
         <div className="overflow-x-auto">
             {items.length === 0 ? (
-                <p className="text-gray-600">No inventory items available.</p>
+                <p className="text-gray-600 p-4">No inventory items available.</p>
             ) : (
                 <table className="w-full">
                     <thead>

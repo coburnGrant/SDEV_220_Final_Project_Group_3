@@ -4,7 +4,7 @@ const ShipmentList = ({ shipments, onViewDetails, onDelete }) => {
     return (
         <div className="overflow-x-auto">
             {shipments.length === 0 ? (
-                <p className="text-gray-600">No shipments found.</p>
+                <p className="text-gray-600 p-4">No shipments found.</p>
             ) : (
                 <table className="w-full">
                     <thead>
