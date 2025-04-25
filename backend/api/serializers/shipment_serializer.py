@@ -13,7 +13,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
     - Tracking user actions
     - Status and type validation
     """
-    items = ShipmentItemSerializer(many=True, required=False)
+    shipment_items = ShipmentItemSerializer(many=True, required=False)
     created_by = UserSerializer(read_only=True)
     updated_by = UserSerializer(read_only=True)
 
@@ -21,14 +21,14 @@ class ShipmentSerializer(serializers.ModelSerializer):
         model = Shipment
         fields = ['id', 'type', 'status', 'tracking_number', 'carrier',
                  'estimated_arrival', 'actual_arrival', 'created_at',
-                 'updated_at', 'items', 'created_by', 'updated_by']
+                 'updated_at', 'shipment_items', 'created_by', 'updated_by']
         read_only_fields = ['created_at', 'updated_at', 'created_by', 'updated_by']
 
     def create(self, validated_data):
         """
         Create a new shipment with its items.
         """
-        items_data = validated_data.pop('items', [])
+        items_data = validated_data.pop('shipment_items', [])
         shipment = Shipment.objects.create(**validated_data)
         
         for item_data in items_data:
@@ -40,7 +40,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
         """
         Update a shipment and its items.
         """
-        items_data = validated_data.pop('items', None)
+        items_data = validated_data.pop('shipment_items', None)
         
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

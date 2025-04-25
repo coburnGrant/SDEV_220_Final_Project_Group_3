@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q, F
 from ..models import InventoryItem
+from ..models.inventory_item import InventoryCategory
 from ..serializers.inventory_item_serializer import InventoryItemSerializer
 
 class InventoryItemViewSet(viewsets.ModelViewSet):
@@ -49,10 +50,17 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def categories(self, request):
         """
-        Get a list of all unique categories in the inventory.
+        Get a list of all unique categories in the inventory and suggested categories.
         """
-        categories = InventoryItem.objects.values_list('category', flat=True).distinct()
-        return Response(categories)
+        # Get existing categories from inventory items
+        existing_categories = InventoryItem.objects.values_list('category', flat=True).distinct()
+        
+        # Get suggested categories
+        suggested_categories = InventoryCategory.get_suggested_categories()
+        
+        # Combine and deduplicate categories
+        all_categories = list(set(list(existing_categories) + suggested_categories))
+        return Response(sorted(all_categories))
 
     @action(detail=False, methods=['get'])
     def low_stock(self, request):

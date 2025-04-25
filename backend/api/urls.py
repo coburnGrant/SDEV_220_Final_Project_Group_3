@@ -10,7 +10,7 @@ from .views import (
     InventoryItemViewSet,
     ShipmentViewSet,
     ShipmentItemViewSet,
-    home_view
+    home_view,
 )
 
 router = DefaultRouter()
