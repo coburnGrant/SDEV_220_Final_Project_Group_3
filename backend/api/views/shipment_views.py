@@ -69,12 +69,12 @@ class ShipmentViewSet(viewsets.ModelViewSet):
         if new_status == ShipmentStatus.DELIVERED.value:
             shipment.actual_arrival = timezone.now()
             # Update inventory quantities
-            for item in shipment.items.all():
+            for item in shipment.shipment_items.all():
                 if shipment.type == ShipmentType.INCOMING.value:
-                    item.product.quantity += item.quantity
+                    item.item.quantity += item.quantity
                 else:  # OUTGOING
-                    item.product.quantity -= item.quantity
-                item.product.save()
+                    item.item.quantity -= item.quantity
+                item.item.save()
         
         shipment.save()
         serializer = self.get_serializer(shipment)

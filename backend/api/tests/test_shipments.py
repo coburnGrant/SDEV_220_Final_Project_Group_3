@@ -2,10 +2,11 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
-from ..models import Shipment, ShipmentItem, Product
+from api.models import Shipment, ShipmentItem
 from django.utils import timezone
 from datetime import timedelta
-from ..models.enums import ShipmentType, ShipmentStatus
+from api.models.enums import ShipmentType, ShipmentStatus
+from api.models import InventoryItem
 
 class ShipmentTests(TestCase):
     def setUp(self):
@@ -24,23 +25,25 @@ class ShipmentTests(TestCase):
         self.token = token_response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
         
-        # Create test products
-        self.product1 = Product.objects.create(
-            name='Test Product 1',
+        # Create test inventory items
+        self.inventory1 = InventoryItem.objects.create(
+            name='Test Item 1',
             sku='SKU001',
             description='Test Description 1',
-            price=10.99,
             quantity=10,
-            reorder_level=5
+            minimum_stock=5,
+            location='A1',
+            category='Electronics'
         )
         
-        self.product2 = Product.objects.create(
-            name='Test Product 2',
+        self.inventory2 = InventoryItem.objects.create(
+            name='Test Item 2',
             sku='SKU002',
             description='Test Description 2',
-            price=20.99,
             quantity=10,
-            reorder_level=5
+            minimum_stock=5,
+            location='B2',
+            category='Office Supplies'
         )
 
     def test_create_incoming_shipment(self):
@@ -53,12 +56,12 @@ class ShipmentTests(TestCase):
             'estimated_arrival': (timezone.now() + timedelta(days=5)).isoformat(),
             'items': [
                 {
-                    'product': self.product1.id,
+                    'item': self.inventory1.id,
                     'quantity': 5,
                     'unit_price': 10.99
                 },
                 {
-                    'product': self.product2.id,
+                    'item': self.inventory2.id,
                     'quantity': 3,
                     'unit_price': 20.99
                 }
@@ -78,7 +81,7 @@ class ShipmentTests(TestCase):
             'estimated_arrival': (timezone.now() + timedelta(days=3)).isoformat(),
             'items': [
                 {
-                    'product': self.product1.id,
+                    'item': self.inventory1.id,
                     'quantity': 2,
                     'unit_price': 10.99
                 }
@@ -100,7 +103,7 @@ class ShipmentTests(TestCase):
         )
         ShipmentItem.objects.create(
             shipment=shipment,
-            product=self.product1,
+            item=self.inventory1,
             quantity=5,
             unit_price=10.99
         )
@@ -110,8 +113,8 @@ class ShipmentTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         # Check if inventory was updated
-        self.product1.refresh_from_db()
-        self.assertEqual(self.product1.quantity, 15)  # Original 10 + 5 from shipment
+        self.inventory1.refresh_from_db()
+        self.assertEqual(self.inventory1.quantity, 15)  # Original 10 + 5 from shipment
 
     def test_list_shipments(self):
         """Test listing all shipments"""
