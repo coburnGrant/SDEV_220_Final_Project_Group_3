@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN, FORM_METHOD_LOGIN, FORM_METHOD_REGISTER } from "../constants";
+import { ACCESS_TOKEN, REFRESH_TOKEN, FORM_METHOD_LOGIN, FORM_METHOD_REGISTER } from "../constants/constants";
 import { validateRegisterForm, validateLoginForm } from "../utils/FormValidator";
 
 function Form({ route, method }) {

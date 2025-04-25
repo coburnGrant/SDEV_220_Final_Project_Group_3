@@ -25,7 +25,6 @@ function InventoryView() {
     const fetchCategories = async () => {
         try {
             const categories = await inventoryService.getCategories();
-            console.log('Categories:', categories);
             setCategories(categories);
             // Set default category if available
             if (categories.length > 0) {

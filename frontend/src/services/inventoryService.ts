@@ -17,7 +17,7 @@ export const inventoryService = {
 
     // Create a new inventory item
     create: async (data) => {
-        const response = await api.post(INVENTORY_URL, data);
+        const response = await api.post(`${INVENTORY_URL}/`, data);
         return response.data;
     },
 

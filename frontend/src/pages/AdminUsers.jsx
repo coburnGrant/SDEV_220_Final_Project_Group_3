@@ -3,7 +3,7 @@ import api from "../services/api";
 import { Trash2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../constants";
+import { API_URL } from "../constants/constants";
 
 const AdminUsers = () => {
   const navigate = useNavigate();

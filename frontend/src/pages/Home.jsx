@@ -1,37 +1,39 @@
 import { useState, useEffect } from "react";
-import api from "../services/api";
-import { ACCESS_TOKEN } from "../constants";
+import { TabType, TabLabel } from "../constants/tabs";
 import Navbar from "../components/Navbar.jsx";
 import { useNavigate } from "react-router-dom";
 import InventoryView from "../components/inventory/InventoryView";
+import ShipmentsView from "../components/shipments/ShipmentsView";
+import { userService } from "../services/userService";
 
 function Home() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [activeTab, setActiveTab] = useState(TabType.INVENTORY);
 
     const navigate = useNavigate();
 
+    const getUser = async () => {
+        try {
+            const userData = await userService.getCurrent();
+            setUser(userData);
+            localStorage.setItem("user", JSON.stringify(userData));
+        } catch (error) {
+            console.error("Error details:", {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+            });
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         (async () => {
-            try {
-                const token = localStorage.getItem(ACCESS_TOKEN);
-                console.log("Current token:", token);
-
-                const response = await api.get("/api/users/me/");
-                console.log("Response:", response.data);
-                setUser(response.data);
-                localStorage.setItem("user", JSON.stringify(response.data));
-            } catch (error) {
-                console.error("Error details:", {
-                    message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status,
-                });
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
+            await getUser();
         })();
     }, []);
 
@@ -72,7 +74,31 @@ function Home() {
                     )}
                 </div>
 
-                <InventoryView />
+                {/* Tabs */}
+                <div className="border-b border-gray-200 mb-6">
+                    <nav className="-mb-px flex space-x-8">
+                        {Object.values(TabType).map((tabType) => (
+                            <button
+                                key={tabType}
+                                onClick={() => setActiveTab(tabType)}
+                                className={`${
+                                    activeTab === tabType
+                                        ? 'border-blue-900 text-blue-900'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            >
+                                {TabLabel[tabType]}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+
+                {/* Content */}
+                {activeTab === TabType.INVENTORY ? (
+                    <InventoryView />
+                ) : (
+                    <ShipmentsView />
+                )}
             </main>
         </div>
     );
