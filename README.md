@@ -7,80 +7,85 @@ A full-stack warehouse management system built with Django and React.
 ### Backend (Django) Setup
 
 1. Create and activate a Python virtual environment:
-```bash
-# Navigate to backend directory
-cd backend
+    - ```bash
+        # Navigate to backend directory
+        cd backend
 
-# Create virtual environment
-python -m venv env
+        # Create virtual environment
+        python -m venv env
 
-# Activate virtual environment
-# For Windows:
-env\Scripts\activate
-# For macOS/Linux:
-source env/bin/activate
-```
-
+        # Activate virtual environment
+        # For Windows:
+        env\Scripts\activate
+        # For macOS/Linux:
+        source env/bin/activate
+        ```
 2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+    - ```bash
+        pip install -r requirements.txt
+        ```
 
 3. Run database migrations:
-```bash
-python manage.py migrate
-```
+    - ```bash
+        python manage.py migrate
+        ```
 
 4. Create an admin superuser:
-```bash
-python manage.py createsuperuser
-```
+    - ```bash
+        python manage.py createsuperuser
+        ```
 
 5. Start the Django development server:
-```bash
-python manage.py runserver
-```
-
-The backend will be running at `http://localhost:8000`
+    - ```bash
+        python manage.py runserver
+        ```
+        - The backend will be running at `http://localhost:8000`
 
 ### Frontend (React) Setup
 
-1. Navigate to frontend directory:
-```bash
-cd frontend
-```
+1. Ensure Node.js is installed
+    - Check for installation by checking the version of node installed:
+        - ```bash
+            node -v
+            ```
+    - Check for installation of node package manager:
+        - ```bash
+            npm -v
+            ```
+    - To install node visit: https://nodejs.org/en/download
 
-2. Install Node dependencies:
-```bash
-npm install
-```
+2. Navigate to frontend directory:
+    - ```bash
+        cd frontend
+        ```
 
-3. Create a `.env` file in the frontend directory with:
-```
-VITE_API_URL="http://127.0.0.1:8000"
-```
+3. Install Node dependencies:
+    - ```bash
+        npm install
+        ```
 
-You can create this file using one of these CLI commands:
+4. Create a `.env` file in the frontend directory with the string: `VITE_API_URL="http://127.0.0.1:8000"`
+    - You can create this file using one of these CLI commands:
+        - Windows (Command Prompt):
+            - ```cmd
+                echo VITE_API_URL="http://127.0.0.1:8000" > .env
+                ```
 
-Windows (Command Prompt):
-```cmd
-echo VITE_API_URL="http://127.0.0.1:8000" > .env
-```
+        - Windows (PowerShell):
+            - ```powershell
+                Set-Content -Path .env -Value @"
+                VITE_API_URL="http://127.0.0.1:8000"
+                "@
+                ```
 
-Windows (PowerShell):
-```powershell
-Set-Content -Path .env -Value 'VITE_API_URL="http://127.0.0.1:8000"'
-```
-
-macOS/Linux:
-```bash
-echo 'VITE_API_URL="http://127.0.0.1:8000"' > .env
-```
-
-4. Start the front-end development server:
-```bash
-npm run dev
-```
+        - macOS/Linux:
+            - ```bash
+                echo 'VITE_API_URL="http://127.0.0.1:8000"' > .env
+                ```
+5. Start the front-end development server:
+    - ```bash
+        npm run dev
+        ```
 
 The frontend will be running at `http://localhost:5173`
 
