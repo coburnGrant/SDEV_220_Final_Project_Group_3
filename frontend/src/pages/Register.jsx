@@ -1,7 +1,8 @@
 import Form from "../components/Form";
+import { FORM_METHOD_REGISTER } from "../constants/constants";
 
 function Register() {
-    return <Form route="/api/user/register/" method="register" />
+    return <Form route="/api/users/register/" method={FORM_METHOD_REGISTER} />
 }
 
 export default Register;

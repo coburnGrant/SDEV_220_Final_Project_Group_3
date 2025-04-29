@@ -2,7 +2,7 @@ import { Menu, LogOut, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-const Navbar = ({ username }) => {
+function Navbar({ username, firstName, lastName }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,6 +11,8 @@ const Navbar = ({ username }) => {
     localStorage.clear();
     navigate("/login");
   };
+
+  const displayName = firstName && lastName ? `${firstName} ${lastName}` : username;
 
   return (
     <nav className="w-full bg-blue-900 text-white px-6 py-4 flex items-center justify-between shadow-md">
@@ -25,15 +27,12 @@ const Navbar = ({ username }) => {
         {/* Hello greeting first */}
         <div className="relative group cursor-pointer">
           <div className="text-sm font-medium flex items-center gap-1 whitespace-nowrap">
-            Hello, <span className="capitalize">{username}</span>
+            Hello, {displayName}
             <ChevronDown size={18} />
           </div>
           <div className="absolute right-0 mt-2 w-36 bg-white text-blue-900 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-20">
             <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/login");
-              }}
+              onClick={handleLogout}
               className="block w-full text-left px-4 py-2 hover:bg-blue-100"
             >
               Logout
