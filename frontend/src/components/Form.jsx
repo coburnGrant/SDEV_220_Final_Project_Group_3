@@ -1,8 +1,16 @@
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN, FORM_METHOD_LOGIN, FORM_METHOD_REGISTER } from "../constants/constants";
-import { validateRegisterForm, validateLoginForm } from "../utils/FormValidator";
+import {
+  ACCESS_TOKEN,
+  REFRESH_TOKEN,
+  FORM_METHOD_LOGIN,
+  FORM_METHOD_REGISTER,
+} from "../constants/constants";
+import {
+  validateRegisterForm,
+  validateLoginForm,
+} from "../utils/FormValidator";
 
 function Form({ route, method }) {
   const [username, setUsername] = useState("");
@@ -12,6 +20,7 @@ function Form({ route, method }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const isRegister = method === FORM_METHOD_REGISTER;
@@ -26,7 +35,7 @@ function Form({ route, method }) {
     } else {
       throw new Error("Invalid form method");
     }
-  }
+  };
 
   // Handles the form submission
   const handleSubmit = async (e) => {
@@ -38,7 +47,13 @@ function Form({ route, method }) {
       validateForm();
 
       const payload = isRegister
-        ? { username, password, first_name: firstName, last_name: lastName, email }
+        ? {
+            username,
+            password,
+            first_name: firstName,
+            last_name: lastName,
+            email,
+          }
         : { username, password };
 
       const response = await api.post(route, payload);
@@ -63,13 +78,19 @@ function Form({ route, method }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-xl px-10 py-8 w-full max-w-sm space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-xl px-10 py-8 w-full max-w-sm space-y-6"
+      >
         <h1 className="text-2xl font-bold text-center text-blue-900">
           {formTitle}
         </h1>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
             <span className="block sm:inline">{error}</span>
           </div>
         )}
