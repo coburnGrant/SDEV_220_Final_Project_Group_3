@@ -52,10 +52,13 @@ class ShipmentViewSet(viewsets.ModelViewSet):
         """
         Update the status of a shipment.
         
-        When status is set to DELIVERED:
-        - Updates the actual arrival time
-        - Adjusts inventory quantities based on shipment type
+        Status transitions and inventory handling:
+        - PENDING -> IN_TRANSIT: No inventory changes
+        - PENDING/IN_TRANSIT -> DELIVERED: Updates inventory based on shipment type
+        - PENDING/IN_TRANSIT -> CANCELLED: No inventory changes
+        - DELIVERED/CANCELLED: Cannot be changed (final states)
         """
+        
         shipment = self.get_object()
         new_status = request.data.get('status')
         
@@ -65,17 +68,44 @@ class ShipmentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        shipment.status = new_status
+        # Prevent changing from final states
+        if shipment.status in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]:
+            return Response(
+                {'error': f'Cannot change status from {shipment.status}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Handle inventory changes
         if new_status == ShipmentStatus.DELIVERED.value:
             shipment.actual_arrival = timezone.now()
+
             # Update inventory quantities
             for item in shipment.shipment_items.all():
                 if shipment.type == ShipmentType.INCOMING.value:
+                    # Handle INCOMING Shipments
+
+                    # Add the quantity to the inventory
                     item.item.quantity += item.quantity
-                else:  # OUTGOING
+                else:  
+                    # Handle OUTGOING Shipments
+
+                    # Check if we have enough inventory
+                    if item.item.quantity < item.quantity:
+                        return Response(
+                            {'error': f'Not enough inventory for item {item.item.name}'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
+                    # Subtract the quantity from the inventory
                     item.item.quantity -= item.quantity
+                
+                # Save the inventory item
                 item.item.save()
         
+        # Update the shipment status
+        shipment.status = new_status
         shipment.save()
+
+        # Return the updated shipment
         serializer = self.get_serializer(shipment)
         return Response(serializer.data) 
