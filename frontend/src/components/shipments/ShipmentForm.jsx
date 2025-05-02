@@ -17,7 +17,6 @@ const ShipmentForm = ({
         const fetchInventoryItems = async () => {
             try {
                 const items = await inventoryService.getAll();
-                console.log("Fetched inventory items:", items);
                 setInventoryItems(items);
             } catch (error) {
                 console.error('Error fetching inventory items:', error);

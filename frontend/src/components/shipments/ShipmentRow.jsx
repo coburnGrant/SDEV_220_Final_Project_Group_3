@@ -1,8 +1,9 @@
 import { Trash, Eye, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { getStatusColor, getTypeColor, formatStatus, formatDate } from "../../utils/statusUtils";
+import StatusChangeDialog from "./StatusChangeDialog";
 
-const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange, onStatsRefresh }) => {
+const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [error, setError] = useState(null);
@@ -17,6 +18,7 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange, onStat
       setSelectedStatus(newStatus);
       setShowConfirm(true);
     } catch (err) {
+      console.error("Error updating status:", err);
       setError(err.response?.data?.error || "Failed to update status");
     }
   };
@@ -24,12 +26,13 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange, onStat
   const confirmStatusChange = async () => {
     try {
       setError(null);
+      
       await onStatusChange(shipment.id, selectedStatus);
-      // Refresh inventory stats after status change
-      await onStatsRefresh();
+
       setShowConfirm(false);
       setSelectedStatus(null);
     } catch (err) {
+      console.error("Error updating status:", err);
       setError(err.response?.data?.error || "Failed to update status");
       setShowConfirm(false);
     }
@@ -102,34 +105,15 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange, onStat
         </td>
       </tr>
 
-      {/* Confirmation Dialog */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4">Confirm Status Change</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to change the status to {formatStatus(selectedStatus)}?
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  setError(null);
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmStatusChange}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <StatusChangeDialog
+        isOpen={showConfirm}
+        onClose={() => {
+          setShowConfirm(false);
+          setError(null);
+        }}
+        onConfirm={confirmStatusChange}
+        selectedStatus={selectedStatus}
+      />
     </>
   );
 };
