@@ -32,7 +32,9 @@ const DashboardView = () => {
     const [error, setError] = useState(null);
     const [dashboardData, setDashboardData] = useState({
         shipmentActivity: [],
-        topItems: []
+        topItems: [],
+        inventoryStats: null,
+        lowStockItems: []
     });
 
     useEffect(() => {
@@ -41,7 +43,20 @@ const DashboardView = () => {
                 setLoading(true);
                 setError(null);
 
+                // Fetch dashboard data
                 const data = await inventoryService.getDashboardData();
+                
+                // Fetch all items to calculate stats
+                const items = await inventoryService.getAll();
+                
+                // Calculate inventory stats
+                const totalValue = items.reduce(
+                    (sum, item) => sum + (item.quantity * (item.unit_price || 0)),
+                    0
+                );
+                
+                // Fetch low stock items
+                const lowStock = await inventoryService.getLowStock();
                 
                 // Format data for charts
                 setDashboardData({
@@ -64,14 +79,29 @@ const DashboardView = () => {
                     },
                     topItems: {
                         labels: data.top_items.map(item => item.name),
-                        datasets: [{
-                            label: 'Quantity',
-                            data: data.top_items.map(item => item.quantity),
-                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                            borderColor: 'rgb(54, 162, 235)',
-                            borderWidth: 1
-                        }]
-                    }
+                        datasets: [
+                            {
+                                label: 'Current Quantity',
+                                data: data.top_items.map(item => item.quantity),
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Minimum Stock',
+                                data: data.top_items.map(item => item.minimum_stock),
+                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    inventoryStats: {
+                        totalItems: items.length,
+                        totalValue: totalValue,
+                        lowStockItems: lowStock.length
+                    },
+                    lowStockItems: lowStock
                 });
             } catch (err) {
                 setError('Failed to load dashboard data');
@@ -93,9 +123,47 @@ const DashboardView = () => {
     }
 
     return (
-        <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
+        <div>
+            {/* Inventory stats */}
+            {dashboardData.inventoryStats && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-white p-4 rounded shadow">
+                        <h2 className="text-sm text-gray-600">Total Items</h2>
+                        <p className="text-xl font-bold">{dashboardData.inventoryStats.totalItems}</p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow">
+                        <h2 className="text-sm text-gray-600">Total Value</h2>
+                        <p className="text-xl font-bold">
+                            ${dashboardData.inventoryStats.totalValue.toFixed(2)}
+                        </p>
+                    </div>
+                    <div className="bg-white p-4 rounded shadow">
+                        <h2 className="text-sm text-gray-600">Low Stock Alerts</h2>
+                        <p className="text-xl font-bold text-red-600">
+                            {dashboardData.inventoryStats.lowStockItems}
+                        </p>
+                    </div>
+                </div>
+            )}
             
+            {/* Low stock items */}
+            {dashboardData.lowStockItems.length > 0 && (
+                <div className="bg-white shadow rounded-lg p-4 mb-8">
+                    <h2 className="text-lg font-semibold text-red-700 mb-2">
+                        ⚠️ Low Stock Items
+                    </h2>
+                    <ul className="list-disc list-inside text-sm text-gray-800">
+                        {dashboardData.lowStockItems.map((item) => (
+                            <li key={item.id}>
+                                <span className="font-medium">{item.name}</span>:{" "}
+                                {item.quantity} in stock (Min: {item.minimum_stock})
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            
+            {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DashboardChart
                     title="Top Items by Quantity"

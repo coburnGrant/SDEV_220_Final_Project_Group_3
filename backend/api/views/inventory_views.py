@@ -167,7 +167,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
             # Get top items by quantity
             try:
                 top_items = InventoryItem.objects.order_by('-quantity')[:5].values(
-                    'name', 'quantity'
+                    'name', 'quantity', 'minimum_stock'
                 )
             except Exception as e:
                 top_items = []

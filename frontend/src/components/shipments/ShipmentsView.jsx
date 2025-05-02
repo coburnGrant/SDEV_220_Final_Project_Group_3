@@ -5,7 +5,7 @@ import ShipmentForm from "./ShipmentForm";
 import ShipmentList from "./ShipmentList";
 import ShipmentDetails from "./ShipmentDetails";
 
-const ShipmentsView = ({ onStatsRefresh }) => {
+const ShipmentsView = () => {
   const [shipments, setShipments] = useState([]);
   const [showNewShipmentForm, setShowNewShipmentForm] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -66,7 +66,6 @@ const ShipmentsView = ({ onStatsRefresh }) => {
       await shipmentService.create(transformedShipment);
       setShowNewShipmentForm(false);
       fetchShipments();
-      await onStatsRefresh();
       alert("Shipment created successfully!");
     } catch (error) {
       console.error("Error creating shipment:", error);
@@ -91,7 +90,6 @@ const ShipmentsView = ({ onStatsRefresh }) => {
       try {
         await shipmentService.delete(id);
         fetchShipments();
-        await onStatsRefresh();
         alert("Shipment deleted successfully!");
       } catch (error) {
         console.error("Error deleting shipment:", error);
@@ -149,7 +147,6 @@ const ShipmentsView = ({ onStatsRefresh }) => {
           onViewDetails={handleViewDetails}
           onDelete={handleDelete}
           onStatusChange={handleStatusChange}
-          onStatsRefresh={onStatsRefresh}
         />
       </div>
 
