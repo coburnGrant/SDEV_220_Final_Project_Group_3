@@ -5,6 +5,7 @@ const ShipmentList = ({
   onViewDetails,
   onDelete,
   onStatusChange,
+  onStatsRefresh,
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -45,6 +46,7 @@ const ShipmentList = ({
                 onViewDetails={onViewDetails}
                 onDelete={onDelete}
                 onStatusChange={onStatusChange}
+                onStatsRefresh={onStatsRefresh}
               />
             ))}
           </tbody>

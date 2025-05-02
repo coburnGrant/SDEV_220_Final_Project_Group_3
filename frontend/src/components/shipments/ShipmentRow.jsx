@@ -1,51 +1,14 @@
 import { Trash, Eye, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { getStatusColor, getTypeColor, formatStatus, formatDate } from "../../utils/statusUtils";
 
-const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
+const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange, onStatsRefresh }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [error, setError] = useState(null);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
-      case "IN_TRANSIT":
-        return "bg-blue-100 text-blue-800";
-      case "DELIVERED":
-        return "bg-green-100 text-green-800";
-      case "CANCELLED":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const getTypeLabel = (type) => {
     return type === "IN" ? "Incoming" : "Outgoing";
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const getStatusWarning = (status) => {
-    switch (status) {
-      case "IN_TRANSIT":
-        return "This will mark the shipment as in transit. This action cannot be undone.";
-      case "DELIVERED":
-        return "This will mark the shipment as delivered and update inventory. This action cannot be undone.";
-      case "CANCELLED":
-        return "This will cancel the shipment. This action cannot be undone.";
-      default:
-        return "Are you sure you want to change the status?";
-    }
   };
 
   const handleStatusChange = async (newStatus) => {
@@ -62,6 +25,8 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
     try {
       setError(null);
       await onStatusChange(shipment.id, selectedStatus);
+      // Refresh inventory stats after status change
+      await onStatsRefresh();
       setShowConfirm(false);
       setSelectedStatus(null);
     } catch (err) {
@@ -75,11 +40,7 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
       <tr className="border-b hover:bg-gray-50">
         <td className="py-3 px-4">
           <span
-            className={`px-2 py-1 rounded-full text-sm ${
-              shipment.type === "IN"
-                ? "bg-green-100 text-green-800"
-                : "bg-blue-100 text-blue-800"
-            }`}
+            className={`px-2 py-1 rounded-full text-sm ${getTypeColor(shipment.type)}`}
           >
             {getTypeLabel(shipment.type)}
           </span>
@@ -90,7 +51,7 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
             <span
               className={`px-2 py-1 rounded-full text-sm ${getStatusColor(shipment.status)}`}
             >
-              {shipment.status.replace("_", " ")}
+              {formatStatus(shipment.status)}
             </span>
             {(shipment.status === "PENDING" || shipment.status === "IN_TRANSIT") && (
               <div className="relative inline-block text-left">
@@ -143,10 +104,12 @@ const ShipmentRow = ({ shipment, onViewDetails, onDelete, onStatusChange }) => {
 
       {/* Confirmation Dialog */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-2xl">
             <h3 className="text-lg font-semibold mb-4">Confirm Status Change</h3>
-            <p className="text-gray-600 mb-6">{getStatusWarning(selectedStatus)}</p>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to change the status to {formatStatus(selectedStatus)}?
+            </p>
             <div className="flex justify-end gap-4">
               <button
                 onClick={() => {

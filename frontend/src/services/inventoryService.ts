@@ -50,6 +50,12 @@ export const inventoryService = {
         return response.data;
     },
 
+    // Get inventory value history
+    getValueHistory: async () => {
+        const response = await api.get(`${INVENTORY_URL}/value_history/`);
+        return response.data;
+    },
+
     // Search inventory items
     search: async (query) => {
         const response = await api.get(`${INVENTORY_URL}/`, {
@@ -63,6 +69,18 @@ export const inventoryService = {
         const response = await api.get(`${INVENTORY_URL}/`, {
             params: { category }
         });
+        return response.data;
+    },
+
+    // Get inventory history for an item
+    getItemHistory: async (itemId: number) => {
+        const response = await api.get(`${INVENTORY_URL}/${itemId}/history/`);
+        return response.data;
+    },
+
+    // Get all dashboard data
+    getDashboardData: async () => {
+        const response = await api.get(`${INVENTORY_URL}/dashboard_data/`);
         return response.data;
     }
 }; 

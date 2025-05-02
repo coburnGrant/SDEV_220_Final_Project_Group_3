@@ -8,6 +8,12 @@ export const shipmentService = {
         return response.data;
     },
 
+    // Get recent shipments (last 30 days)
+    getRecent: async () => {
+        const response = await api.get(`${SHIPMENT_URL}/recent/`);
+        return response.data;
+    },
+
     // Get a single shipment by ID
     getById: async (id) => {
         const response = await api.get(`${SHIPMENT_URL}/${id}/`);
@@ -65,5 +71,15 @@ export const shipmentService = {
             params: { search: query }
         });
         return response.data;
+    },
+
+    // Get shipment history for an item
+    getItemHistory: async (itemId) => {
+        try {
+            const response = await api.get(`${SHIPMENT_URL}/item_history/?item_id=${itemId}`);
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || { error: "Failed to fetch shipment history" };
+        }
     }
 }; 

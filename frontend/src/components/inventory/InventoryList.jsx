@@ -1,7 +1,18 @@
+import { useState } from "react";
 import InventoryItemRow from "./InventoryItemRow";
+import ShipmentHistoryModal from "./ShipmentHistoryModal";
 
-const InventoryList = ({ items, onEdit, onDelete }) => {
-    
+function InventoryList({ items, onEdit, onDelete }) {
+    const [selectedItem, setSelectedItem] = useState(null);
+
+    const handleViewHistory = (item) => {
+        setSelectedItem(item);
+    };
+
+    const handleCloseHistory = () => {
+        setSelectedItem(null);
+    };
+
     return (
         <div className="overflow-x-auto">
             {items.length === 0 ? (
@@ -23,13 +34,21 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
                                 item={item}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
+                                onViewHistory={handleViewHistory}
                             />
                         ))}
                     </tbody>
                 </table>
             )}
+
+            {selectedItem && (
+                <ShipmentHistoryModal
+                    item={selectedItem}
+                    onClose={handleCloseHistory}
+                />
+            )}
         </div>
     );
-};
+}
 
 export default InventoryList; 

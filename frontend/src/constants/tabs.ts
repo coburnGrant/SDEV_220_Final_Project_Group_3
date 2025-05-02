@@ -5,5 +5,6 @@ export const TabType = {
 
 export const TabLabel = {
     [TabType.INVENTORY]: 'Inventory',
-    [TabType.SHIPMENTS]: 'Shipments'
+    [TabType.SHIPMENTS]: 'Shipments',
+    [TabType.DASHBOARD]: 'Dashboard'
 }; 

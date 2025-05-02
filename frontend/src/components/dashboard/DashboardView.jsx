@@ -1,0 +1,116 @@
+import { useState, useEffect } from 'react';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
+import { inventoryService } from '../../services/inventoryService';
+import DashboardChart from './DashboardChart';
+
+// Register ChartJS components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+const DashboardView = () => {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [dashboardData, setDashboardData] = useState({
+        shipmentActivity: [],
+        topItems: []
+    });
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const data = await inventoryService.getDashboardData();
+                
+                // Format data for charts
+                setDashboardData({
+                    shipmentActivity: {
+                        labels: ['Incoming', 'Outgoing'],
+                        datasets: [{
+                            data: [
+                                data.shipment_activity.find(s => s.type === 'IN')?.count || 0,
+                                data.shipment_activity.find(s => s.type === 'OUT')?.count || 0
+                            ],
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(255, 99, 132, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgb(75, 192, 192)',
+                                'rgb(255, 99, 132)'
+                            ]
+                        }]
+                    },
+                    topItems: {
+                        labels: data.top_items.map(item => item.name),
+                        datasets: [{
+                            label: 'Quantity',
+                            data: data.top_items.map(item => item.quantity),
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1
+                        }]
+                    }
+                });
+            } catch (err) {
+                setError('Failed to load dashboard data');
+                console.error('Error fetching dashboard data:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    if (loading) {
+        return <div className="text-center p-4">Loading dashboard data...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-600 p-4">{error}</div>;
+    }
+
+    return (
+        <div className="p-6">
+            <h2 className="text-2xl font-semibold mb-6">Dashboard</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <DashboardChart
+                    title="Top Items by Quantity"
+                    type="bar"
+                    data={dashboardData.topItems}
+                />
+
+                <DashboardChart
+                    title="Recent Shipment Activity"
+                    type="pie"
+                    data={dashboardData.shipmentActivity}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default DashboardView; 

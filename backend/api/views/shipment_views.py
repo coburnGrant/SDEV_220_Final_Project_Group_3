@@ -3,7 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
 from django.utils import timezone
-from ..models import Shipment
+from datetime import timedelta
+from ..models import Shipment, InventoryItem
 from ..serializers.shipment_serializer import ShipmentSerializer
 from ..models.enums import ShipmentType, ShipmentStatus
 
@@ -23,21 +24,20 @@ class ShipmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Shipment.objects.all()
-        shipment_type = self.request.query_params.get('type', None)
-        status = self.request.query_params.get('status', None)
         search = self.request.query_params.get('search', None)
+        status = self.request.query_params.get('status', None)
+        type = self.request.query_params.get('type', None)
 
-        if shipment_type:
-            queryset = queryset.filter(type=shipment_type)
+        if search:
+            queryset = queryset.filter(
+                tracking_number__icontains=search
+            )
         
         if status:
             queryset = queryset.filter(status=status)
         
-        if search:
-            queryset = queryset.filter(
-                Q(tracking_number__icontains=search) |
-                Q(carrier__icontains=search)
-            )
+        if type:
+            queryset = queryset.filter(type=type)
         
         return queryset
 
@@ -108,4 +108,44 @@ class ShipmentViewSet(viewsets.ModelViewSet):
 
         # Return the updated shipment
         serializer = self.get_serializer(shipment)
-        return Response(serializer.data) 
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def recent(self, request):
+        """
+        Get shipments from the last 30 days.
+        """
+
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        recent_shipments = Shipment.objects.filter(
+            created_at__gte=thirty_days_ago
+        ).order_by('-created_at')
+        
+        serializer = self.get_serializer(recent_shipments, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def item_history(self, request):
+        """
+        Get shipment history for a specific item.
+        """
+        
+        item_id = request.query_params.get('item_id')
+        if not item_id:
+            return Response(
+                {'error': 'Item ID is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            shipments = Shipment.objects.filter(
+                shipment_items__item_id=item_id
+            ).order_by('-created_at')
+            
+            serializer = self.get_serializer(shipments, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            ) 

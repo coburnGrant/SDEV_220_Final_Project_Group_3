@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar.jsx";
 import { useNavigate } from "react-router-dom";
 import InventoryView from "../components/inventory/InventoryView";
 import ShipmentsView from "../components/shipments/ShipmentsView";
+import DashboardView from "../components/dashboard/DashboardView";
 import { userService } from "../services/userService";
 import { inventoryService } from "../services/inventoryService";
 
@@ -11,9 +12,12 @@ const Home = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(TabType.INVENTORY);
-  const [inventoryStats, setInventoryStats] = useState(null);
-  const [lowStockItems, setLowStockItems] = useState([]);
+  const [activeTab, setActiveTab] = useState(TabType.DASHBOARD);
+  const [inventoryStats, setInventoryStats] = useState({
+    totalItems: 0,
+    totalValue: 0,
+    lowStockItems: 0,
+  });
 
   const navigate = useNavigate();
 
@@ -36,20 +40,21 @@ const Home = () => {
 
   const loadInventoryStats = async () => {
     try {
-      const allItems = await inventoryService.getAll();
+      const items = await inventoryService.getAll();
       const lowStockItems = await inventoryService.getLowStock();
-      const totalQuantity = allItems.reduce(
-        (sum, item) => sum + item.quantity,
-        0,
+
+      const totalValue = items.reduce(
+        (sum, item) => sum + item.quantity * (item.unit_price || 0),
+        0
       );
+
       setInventoryStats({
-        totalItems: allItems.length,
-        totalQuantity,
-        lowStockCount: lowStockItems.length,
+        totalItems: items.length,
+        totalValue: totalValue,
+        lowStockItems: lowStockItems.length,
       });
-      setLowStockItems(lowStockItems);
-    } catch (err) {
-      console.error("Error loading stats", err);
+    } catch (error) {
+      console.error("Error loading inventory stats:", error);
     }
   };
 
@@ -107,60 +112,63 @@ const Home = () => {
               <p className="text-xl font-bold">{inventoryStats.totalItems}</p>
             </div>
             <div className="bg-white p-4 rounded shadow">
-              <h2 className="text-sm text-gray-600">Total Quantity</h2>
+              <h2 className="text-sm text-gray-600">Total Value</h2>
               <p className="text-xl font-bold">
-                {inventoryStats.totalQuantity}
+                {inventoryStats.totalValue.toFixed(2)}
               </p>
             </div>
             <div className="bg-white p-4 rounded shadow">
               <h2 className="text-sm text-gray-600">Low Stock Alerts</h2>
               <p className="text-xl font-bold text-red-600">
-                {inventoryStats.lowStockCount}
+                {inventoryStats.lowStockItems}
               </p>
             </div>
-          </div>
-        )}
-
-        {lowStockItems.length > 0 && (
-          <div className="bg-white shadow rounded-lg p-4 mb-8">
-            <h2 className="text-lg font-semibold text-red-700 mb-2">
-              ⚠️ Low Stock Items
-            </h2>
-            <ul className="list-disc list-inside text-sm text-gray-800">
-              {lowStockItems.map((item) => (
-                <li key={item.id}>
-                  <span className="font-medium">{item.name}</span>:{" "}
-                  {item.quantity} in stock (Min: {item.minimum_stock})
-                </li>
-              ))}
-            </ul>
           </div>
         )}
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">
-            {Object.values(TabType).map((tabType) => (
-              <button
-                key={tabType}
-                onClick={() => setActiveTab(tabType)}
-                className={`$${
-                  activeTab === tabType
-                    ? "border-blue-900 text-blue-900"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                {TabLabel[tabType]}
-              </button>
-            ))}
+            <button
+              onClick={() => setActiveTab(TabType.DASHBOARD)}
+              className={`${
+                activeTab === TabType.DASHBOARD
+                  ? "border-blue-900 text-blue-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab(TabType.INVENTORY)}
+              className={`${
+                activeTab === TabType.INVENTORY
+                  ? "border-blue-900 text-blue-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Inventory
+            </button>
+            <button
+              onClick={() => setActiveTab(TabType.SHIPMENTS)}
+              className={`${
+                activeTab === TabType.SHIPMENTS
+                  ? "border-blue-900 text-blue-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Shipments
+            </button>
           </nav>
         </div>
 
         {/* Content */}
-        {activeTab === TabType.INVENTORY ? (
-          <InventoryView />
-        ) : (
-          <ShipmentsView />
+        {activeTab === TabType.DASHBOARD && <DashboardView />}
+        {activeTab === TabType.INVENTORY && (
+          <InventoryView onStatsRefresh={loadInventoryStats} />
+        )}
+        {activeTab === TabType.SHIPMENTS && (
+          <ShipmentsView onStatsRefresh={loadInventoryStats} />
         )}
       </main>
     </div>

@@ -5,7 +5,7 @@ import ShipmentForm from "./ShipmentForm";
 import ShipmentList from "./ShipmentList";
 import ShipmentDetails from "./ShipmentDetails";
 
-const ShipmentsView = () => {
+const ShipmentsView = ({ onStatsRefresh }) => {
   const [shipments, setShipments] = useState([]);
   const [showNewShipmentForm, setShowNewShipmentForm] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(null);
@@ -33,12 +33,17 @@ const ShipmentsView = () => {
   };
 
   const handleNewShipment = () => {
+    // Set default date to 7 days from now
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 7);
+    const formattedDate = defaultDate.toISOString().split('T')[0];
+
     setNewShipment({
       type: "IN",
       status: "PENDING",
       carrier: "",
       tracking_number: "",
-      estimated_arrival: "",
+      estimated_arrival: formattedDate,
       shipment_items: [],
     });
     setShowNewShipmentForm(true);
@@ -49,20 +54,27 @@ const ShipmentsView = () => {
     try {
       const transformedShipment = {
         ...newShipment,
+        carrier: newShipment.carrier === "Other" ? newShipment.custom_carrier : newShipment.carrier,
+        tracking_number: newShipment.tracking_number,
         shipment_items: newShipment.shipment_items.map((item) => ({
           item: item.item_id,
           quantity: item.quantity,
           unit_price: item.unit_price,
         })),
       };
-
+      
       await shipmentService.create(transformedShipment);
       setShowNewShipmentForm(false);
       fetchShipments();
+      await onStatsRefresh();
       alert("Shipment created successfully!");
     } catch (error) {
       console.error("Error creating shipment:", error);
-      alert(error.response?.data?.message || "Failed to create shipment");
+      // Extract the error message from the response
+      const errorMessage = error.response?.data?.tracking_number?.[0] || 
+                          error.response?.data?.message || 
+                          "Failed to create shipment";
+      alert(errorMessage);
     }
   };
 
@@ -79,6 +91,7 @@ const ShipmentsView = () => {
       try {
         await shipmentService.delete(id);
         fetchShipments();
+        await onStatsRefresh();
         alert("Shipment deleted successfully!");
       } catch (error) {
         console.error("Error deleting shipment:", error);
@@ -136,6 +149,7 @@ const ShipmentsView = () => {
           onViewDetails={handleViewDetails}
           onDelete={handleDelete}
           onStatusChange={handleStatusChange}
+          onStatsRefresh={onStatsRefresh}
         />
       </div>
 
