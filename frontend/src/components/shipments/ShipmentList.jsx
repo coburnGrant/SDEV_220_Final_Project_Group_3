@@ -4,7 +4,7 @@ const ShipmentList = ({
   shipments,
   onViewDetails,
   onDelete,
-  onStatusChange,
+  onStatusChange
 }) => {
   return (
     <div className="overflow-x-auto">

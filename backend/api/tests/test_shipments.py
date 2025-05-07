@@ -54,7 +54,7 @@ class ShipmentTests(TestCase):
             'tracking_number': 'TRACK001',
             'carrier': 'FedEx',
             'estimated_arrival': (timezone.now() + timedelta(days=5)).isoformat(),
-            'items': [
+            'shipment_items': [
                 {
                     'item': self.inventory1.id,
                     'quantity': 5,
@@ -79,7 +79,7 @@ class ShipmentTests(TestCase):
             'tracking_number': 'TRACK002',
             'carrier': 'UPS',
             'estimated_arrival': (timezone.now() + timedelta(days=3)).isoformat(),
-            'items': [
+            'shipment_items': [
                 {
                     'item': self.inventory1.id,
                     'quantity': 2,

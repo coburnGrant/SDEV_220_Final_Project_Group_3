@@ -17,7 +17,6 @@ const ShipmentForm = ({
         const fetchInventoryItems = async () => {
             try {
                 const items = await inventoryService.getAll();
-                console.log("Fetched inventory items:", items);
                 setInventoryItems(items);
             } catch (error) {
                 console.error('Error fetching inventory items:', error);
@@ -77,8 +76,8 @@ const ShipmentForm = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-gray-700 bg-opacity-30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-8 w-full max-w-4xl shadow-lg relative">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 w-full max-w-4xl shadow-2xl relative">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold">
                         {isEditing ? 'Edit Shipment' : 'New Shipment'}
@@ -108,13 +107,30 @@ const ShipmentForm = ({
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Carrier</label>
-                            <input
-                                type="text"
+                            <select
                                 value={shipment.carrier}
                                 onChange={(e) => setShipment({ ...shipment, carrier: e.target.value })}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
                                 required
-                            />
+                            >
+                                <option value="">Select a carrier</option>
+                                <option value="USPS">USPS</option>
+                                <option value="UPS">UPS</option>
+                                <option value="FedEx">FedEx</option>
+                                <option value="DHL">DHL</option>
+                                <option value="Amazon">Amazon</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            {shipment.carrier === "Other" && (
+                                <input
+                                    type="text"
+                                    value={shipment.custom_carrier || ""}
+                                    onChange={(e) => setShipment({ ...shipment, custom_carrier: e.target.value })}
+                                    className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
+                                    placeholder="Enter carrier name"
+                                    required
+                                />
+                            )}
                         </div>
 
                         <div>
@@ -125,6 +141,7 @@ const ShipmentForm = ({
                                 onChange={(e) => setShipment({ ...shipment, tracking_number: e.target.value })}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
                                 required
+                                placeholder="Enter carrier tracking number"
                             />
                         </div>
 

@@ -1,6 +1,6 @@
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, History } from "lucide-react";
 
-function InventoryItemRow({ item, onEdit, onDelete }) {
+function InventoryItemRow({ item, onEdit, onDelete, onViewHistory }) {
     return (
         <tr className="border-b hover:bg-gray-50">
             <td className="py-3 px-4">{item.name}</td>
@@ -9,13 +9,19 @@ function InventoryItemRow({ item, onEdit, onDelete }) {
             <td className="py-3 px-4 text-right">
                 <div className="flex justify-end gap-4 items-center">
                     <button
+                        onClick={() => onViewHistory(item)}
+                        className="text-gray-600 hover:text-gray-800 cursor-pointer"
+                        title="View Shipment History"
+                    >
+                        <History size={20} />
+                    </button>
+                    <button
                         onClick={() => onEdit(item)}
                         className="text-blue-600 hover:text-blue-800 cursor-pointer"
                         title="Edit"
                     >
                         <Pencil size={20} />
                     </button>
-
                     <button
                         onClick={() => onDelete(item.id)}
                         className="text-red-600 hover:text-red-800 cursor-pointer"
