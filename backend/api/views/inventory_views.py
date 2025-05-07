@@ -149,6 +149,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
         Returns processed data for:
         - Recent shipment activity
         - Top items by quantity
+        - Outstanding shipments count
         """
         try:
             thirty_days_ago = timezone.now() - timedelta(days=30)
@@ -172,9 +173,18 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 top_items = []
 
+            # Get outstanding shipments count
+            try:
+                outstanding_shipments = Shipment.objects.exclude(
+                    status=ShipmentStatus.DELIVERED.value
+                ).count()
+            except Exception as e:
+                outstanding_shipments = 0
+
             return Response({
                 'shipment_activity': list(shipment_activity),
-                'top_items': list(top_items)
+                'top_items': list(top_items),
+                'outstanding_shipments': outstanding_shipments
             })
 
         except Exception as e:

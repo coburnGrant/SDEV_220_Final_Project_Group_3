@@ -49,12 +49,6 @@ const DashboardView = () => {
                 // Fetch all items to calculate stats
                 const items = await inventoryService.getAll();
                 
-                // Calculate inventory stats
-                const totalValue = items.reduce(
-                    (sum, item) => sum + (item.quantity * (item.unit_price || 0)),
-                    0
-                );
-                
                 // Fetch low stock items
                 const lowStock = await inventoryService.getLowStock();
                 
@@ -98,7 +92,7 @@ const DashboardView = () => {
                     },
                     inventoryStats: {
                         totalItems: items.length,
-                        totalValue: totalValue,
+                        outstandingShipments: data.outstanding_shipments || 0,
                         lowStockItems: lowStock.length
                     },
                     lowStockItems: lowStock
@@ -132,9 +126,9 @@ const DashboardView = () => {
                         <p className="text-xl font-bold">{dashboardData.inventoryStats.totalItems}</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow">
-                        <h2 className="text-sm text-gray-600">Total Value</h2>
-                        <p className="text-xl font-bold">
-                            ${dashboardData.inventoryStats.totalValue.toFixed(2)}
+                        <h2 className="text-sm text-gray-600">Outstanding Shipments</h2>
+                        <p className="text-xl font-bold text-blue-600">
+                            {dashboardData.inventoryStats.outstandingShipments}
                         </p>
                     </div>
                     <div className="bg-white p-4 rounded shadow">
