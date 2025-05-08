@@ -10,7 +10,6 @@ from .views import (
     InventoryItemViewSet,
     ShipmentViewSet,
     ShipmentItemViewSet,
-    home_view,
 )
 
 router = DefaultRouter()
@@ -26,5 +25,4 @@ urlpatterns = [
     path('users/me/', CurrentUserView.as_view(), name='current-user'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDeleteView.as_view(), name='user-delete'),
-    path('home', home_view.home, name='home'),
 ]
