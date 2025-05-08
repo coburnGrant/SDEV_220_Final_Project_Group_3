@@ -64,25 +64,7 @@ A full-stack warehouse management system built with Django and React.
         npm install
         ```
 
-4. Create a `.env` file in the frontend directory with the string: `VITE_API_URL="http://127.0.0.1:8000"`
-    - You can create this file using one of these CLI commands:
-        - Windows (Command Prompt):
-            - ```cmd
-                echo VITE_API_URL="http://127.0.0.1:8000" > .env
-                ```
-
-        - Windows (PowerShell):
-            - ```powershell
-                Set-Content -Path .env -Value @"
-                VITE_API_URL="http://127.0.0.1:8000"
-                "@
-                ```
-
-        - macOS/Linux:
-            - ```bash
-                echo 'VITE_API_URL="http://127.0.0.1:8000"' > .env
-                ```
-5. Start the front-end development server:
+4. Start the front-end development server:
     - ```bash
         npm run dev
         ```
